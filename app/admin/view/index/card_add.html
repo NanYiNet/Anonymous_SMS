@@ -1,0 +1,61 @@
+{include file='public/header'}
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-header">添加卡密</div>
+    <div class="layui-card-body">
+        <form style="margin-top: 0px;" class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-required">卡密金额</label>
+                <input name="money" placeholder="请输入卡密金额" class="layui-input" lay-verType="tips" lay-verify="required" required/>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-required">生成个数</label>
+                <input name="count" placeholder="请输入生成个数" class="layui-input" lay-verType="tips" lay-verify="required" required/>
+            </div>
+            <div class="layui-form-item">
+                <label>自定义前缀</label>
+                <input name="prefix" placeholder="请输入卡密自定义前缀字段（如：Nathan ,生成的卡密就是Nathan_KEY，此表单可为空）" class="layui-input" lay-verType="tips">
+            </div>
+            <div class="layui-form-item layui-inline">
+                <button class="pear-btn pear-btn-primary" lay-submit lay-filter="Nathan">
+                    <i class="layui-icon layui-icon-ok"></i> 提交
+                </button>
+                <button type="reset" class="pear-btn">
+                    <i class="layui-icon layui-icon-refresh"></i> 重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+<!-- js部分 -->
+{include file='public/script'}
+<script>
+    layui.use(['jquery','layer', 'form'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+
+        form.on('submit(Nathan)', function(data) {
+            var loadIndex = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+            $.ajax({
+                url: '{:url(\'Ajax/card_add\')}',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function(result) {
+                    layer.close(loadIndex);
+                    if (result.code === 1) {
+                        layer.msg(result.msg, {icon: 6, time: 1500});
+                    } else {
+                        layer.msg(result.msg, {icon: 5, anim: 6});
+                    }
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

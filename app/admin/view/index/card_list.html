@@ -1,0 +1,244 @@
+{include file='public/header'}
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="Nathan_Table" lay-filter="Nathan_Table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="Nathan_toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+    <button class="pear-btn pear-btn-success pear-btn-md" lay-event="del_all">
+        <i class="layui-icon layui-icon-delete"></i>
+        清空卡密
+    </button>
+    <button class="pear-btn pear-btn-warming pear-btn-md" lay-event="del_all_no">
+        <i class="layui-icon layui-icon-delete"></i>
+        清空已使用卡密
+    </button>
+</script>
+
+<script type="text/html" id="Nathan_Function">
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i></button>
+</script>
+
+<script type="text/html" id="Nathan_TbState">
+    {{# if(d.status==1){ }}
+    <span class="pear-btn pear-btn-success pear-btn-xs">未使用</span>
+    {{# }else if(d.status==0){ }}
+    <span class="pear-btn pear-btn-danger pear-btn-xs">已使用</span>
+    {{# } }}
+</script>
+<script type="text/html" id="Nathan_Money">
+    <span plain class="pear-btn pear-btn-primary pear-btn-xs">￥{{d.money}}</span>
+</script>
+{include file='public/script'}
+<script>
+    layui.use(['table','jquery','common'], function() {
+        let table = layui.table;
+        let $ = layui.jquery;
+        let common = layui.common;
+        let cols = [
+            [{
+                type: 'checkbox'
+            },{
+                title: 'ID',
+                field: 'id',
+                align: 'center',
+                width: 200,
+                hide: true
+            },{
+                title: '卡密',
+                field: 'key',
+                align: 'center',
+                width: 200,
+            },{
+                title: '卡密金额',
+                field: 'money',
+                align: 'center',
+                width: 200,
+                templet: '#Nathan_Money'
+            },{
+                title: '使用时间',
+                field: 'usetime',
+                align: 'center',
+                width: 200,
+            },{
+                title: '创建时间',
+                field: 'date',
+                align: 'center',
+                width: 200,
+            },
+                {
+                    title: '状态',
+                    field: 'status',
+                    align: 'center',
+                    width: 200,
+                    templet: '#Nathan_TbState'
+                },
+                {
+                    title: '操作',
+                    toolbar: '#Nathan_Function',
+                    align: 'center',
+                    width: 130
+                }
+            ]
+        ]
+
+        table.render({
+            elem: '#Nathan_Table',
+            url: '{:url(\'Ajax/card_list\')}',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            toolbar: '#Nathan_toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(Nathan_Table)', function(obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            }
+        });
+
+        table.on('toolbar(Nathan_Table)', function(obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            } else if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'del_all') {
+                window.del_all();
+            } else if (obj.event === 'del_all_no') {
+                window.del_all_no();
+            }
+        });
+
+        window.add = function() {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: [common.isModile()?'100%':'500px', common.isModile()?'100%':'400px'],
+                content: '{:url(\'Card/card_add\')}'
+            });
+        }
+
+        window.remove = function(obj) {
+            layer.confirm('确定要删除该数据？', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+                $.post('{:url(\'Ajax/card_del\')}', {
+                    id: obj.data ? obj.data.id : '',
+                }, function (res) {
+                    layer.close(loading);
+                    if (res.code === 1) {
+                        layer.msg(res.msg, {icon: 1});
+                        table.reload('Nathan_Table');
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, 'json');
+            });
+        }
+
+        window.del_all = function() {
+            layer.confirm('确认清空所有卡密吗？', {
+                icon: 3,
+                title: '提示'
+            }, function (index) {
+                layer.close(index);
+                layer.msg('正在处理中，请稍后...');
+                $.ajax({
+                    type:'POST',
+                    url:'{:url(\'Ajax/kamidel_all\')}',
+                    dataType:'json',
+                    success:function (data){
+                        if(data.code == 1){
+                            layer.msg(data.msg, {icon: 6, time: 1500});
+                            table.reload('Nathan_Table');
+                        }else{
+                            layer.msg(data.msg, {icon: 5, anim: 6});
+                        }
+                    }
+                });
+            });
+        }
+
+        window.del_all_no = function() {
+            layer.confirm('确认清空已使用的卡密吗？', {
+                icon: 3,
+                title: '提示'
+            }, function (index) {
+                layer.close(index);
+                layer.msg('正在处理中，请稍后...');
+                $.ajax({
+                    type:'POST',
+                    url:'{:url(\'Ajax/kamidel_all_no\')}',
+                    dataType:'json',
+                    success:function (data){
+                        if(data.code == 1){
+                            layer.msg(data.msg, {icon: 6, time: 1500});
+                            table.reload('Nathan_Table');
+                        }else{
+                            layer.msg(data.msg, {icon: 5, anim: 6});
+                        }
+                    }
+                });
+            });
+        }
+
+        window.batchRemove = function(obj) {
+
+            var checkIds = common.checkField(obj,'id');
+
+            if (checkIds === "") {
+                layer.msg("未选中数据", {
+                    icon: 3,
+                    time: 1000
+                });
+                return false;
+            }
+
+            layer.confirm('确定要删除这些用户', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+                $.post('{:url(\'Ajax/card_del\')}', {
+                    ids: common.checkField(obj,'id')
+                }, function (res) {
+                    layer.close(loading);
+                    if (res.code === 1) {
+                        layer.msg(res.msg, {icon: 1});
+                        table.reload('Nathan_Table');
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, 'json');
+            });
+        }
+
+        window.refresh = function(param) {
+            table.reload('Nathan_Table');
+        }
+    })
+</script>
+</body>
+</html>

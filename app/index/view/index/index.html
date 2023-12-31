@@ -1,0 +1,123 @@
+{include file='index/public/header' title='写信'}
+<footer class="footer">
+    <a href="{:url('index')}" class="show">
+        <img src="/static/picture/tab_00_show.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}">
+        <img src="/static/picture/tab_01.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}">
+        <img src="/static/picture/tab_03.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<section class="section">
+    <div class="header">
+        <div class="header-active">
+            <span style="background-image: url({$photo});"></span>
+        </div>
+        <div class="header-text">{$web.webname}</div>
+    </div>
+    <div class="index-block">
+        <div class="index-block-title">
+            <span>你瞧！</span>被人记起的感觉多么美好
+        </div>
+        <img class="index-block-img" src="/static/picture/img_01.png" alt="原点">
+        <div class="index-block-flex">
+            <div class="index-block-flex-cover" style="background-image: url(/static/image/img_02.png);"></div>
+            <div class="index-block-flex-text">
+                <p>至少在这个世界上</p><p>你能真真切切的想到我</p>
+                <a href="{:url('sendsms')}">
+                    <img src="/static/picture/icon_01.png" alt="icon">去发短信
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="ad-title">
+        <div class="ad-title-text">
+            <img src="/static/picture/icon_00.png">站长广告联盟
+        </div>
+        <a onclick="ad()">投放广告</a>
+    </div>
+        <div class="ad-flex">
+        <div class="ad-flex-item">
+            <a href="http://www.nanyinet.com" target="_blank" style="background-image: url(http://auth.nanyinet.com/logo.png);background-size:90%;background-repeat:no-repeat ;"></a>
+            <div class="header-text">南逸博客</div>
+        </div>
+    </div>
+        <div class="ad-flex">
+        <div class="ad-flex-item">
+            <a href="http://https://www.yunvps.cn/" target="_blank" style="background-image: url(https://files.superbed.cn/store/superbed/16/15/65904767c458853aef261615.jpg);background-size:90%;background-repeat:no-repeat ;"></a>
+            <div class="header-text">云鹤数据-全网性价比最高</div>
+        </div>
+    </div>
+        <div class="ad-flex">
+        <div class="ad-flex-item">
+            <a href="http://http://cloud.sviper.cn" target="_blank" style="background-image: url(http://cloud.sviper.cn/logo.png);background-size:90%;background-repeat:no-repeat ;"></a>
+            <div class="header-text">VIP互联-高防服务器</div>
+        </div>
+    </div>
+        <div class="ad-flex">
+        <div class="ad-flex-item">
+            <a href="http://http://xuyuany.cn/" target="_blank" style="background-image: url(http://xuyuany.cn/upload/xuyuan.png);background-size:90%;background-repeat:no-repeat ;"></a>
+            <div class="header-text">许愿数据</div>
+        </div>
+    </div>
+        <div class="ad-flex">
+        <div class="ad-flex-item">
+            <a href="http://https://www.0cz.cn/" target="_blank" style="background-image: url(https://www.0cz.cn/wp-content/uploads/2023/08/download-2-300x55-1.png);background-size:90%;background-repeat:no-repeat ;"></a>
+            <div class="header-text">龙域极客</div>
+        </div>
+    </div>
+        <div class="ad-flex">
+        <div class="ad-flex-item">
+            <a href="http://https://mpay.1sdun.cn/" target="_blank" style="background-image: url(http://fk.1sdun.cn/yd.jpeg);background-size:90%;background-repeat:no-repeat ;"></a>
+            <div class="header-text">易速码支付</div>
+        </div>
+    </div>
+    <div class="ad-flex">
+        <div class="ad-flex-item">
+            <a href="http://https://www.jdtech.wang" target="_blank" style="background-image: url(https://s1.ax1x.com/2022/05/15/ORuX1U.png);background-size:90%;background-repeat:no-repeat ;"></a>
+            <div class="header-text">景云数据</div>
+        </div>
+    </div>
+</section>
+{include file='index/public/script'}
+{notempty name='web.notice'}
+<script>
+    layer.open({
+        type: 1,
+        anim: 3,
+        title: '站点公告',
+        skin: 'lyear-skin-purple',
+        closeBtn: true,
+        area: '300px;',
+        btn: ['我知道了'],
+        moveType: 1,
+        content: '<div style="padding: 40px; line-height: 20px; background-color: #393D49; color: #fff; font-weight: 150;"><b>{$web.notice}</b></div>',
+    });
+</script>
+{/notempty}
+<script>
+    function ad(){
+        layer.open({
+            type: 1,
+            anim: 4,
+            title: '广告联盟',
+            shadeClose: true,
+            shade: false,
+            maxmin: true,
+            area: '300px;',
+            content: '<div style="padding: 40px; line-height: 20px;font-weight: 150;">\n' +
+                '<p><b>广告投放联系<br>站长QQ：{$web.webqq}<br>站长微信：{$web.webwx}</b></p></b></div>',
+        });
+    }
+</script>
+</body>
+</html>

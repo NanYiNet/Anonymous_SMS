@@ -1,0 +1,61 @@
+{include file='index/public/header' title='公开信'}
+<footer class="footer">
+    <a href="{:url('index')}">
+        <img src="/static/picture/tab_00.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}" class="show">
+        <img src="/static/picture/tab_01_show.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}">
+        <img src="/static/picture/tab_03.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<section class="section">
+    <header class="header">
+        <h4 class="letter-header-title">公开信</h4>
+        <form>
+            <div class="letter-header-input">
+                <label>搜TA的信</label>
+                <input type="text" name="keywords" placeholder="手机号码或者短信内容">
+                <button type="submit" id="search">
+                    <img src="/static/picture/icon_12.png" alt="搜索">
+                </button>
+            </div>
+        </form>
+    </header>
+    <ul class="letter-lists">
+        <h5 style="padding: 0px 18px 0px 18px;;">温馨提示：本页面排序会按照“刷新时间”和“发布时间”依次倒序排序，刷新短信请到"已发短信"和"我的收信"中进行操作！</h5>
+        {foreach $list as $value}
+        <li>
+            <div class="letter-lists-flex">
+                <div class="letter-lists-user">
+                    <span class="letter-user-active" style="background-image: url(/static/image/active.png);"></span>
+                    <div class="letter-user-nick nowrap">{$value.name}</div>
+                </div>
+                <div class="letter-lists-time">{$value.date}</div>
+            </div>
+            <div class="letter-msg">{$value.content}</div>
+        </li>
+        {/foreach}
+    </ul>
+    <div class="pagination">{$list|raw}</div>
+</section>
+{include file='index/public/script'}
+<script>
+    $('#search').click(function () {
+        var keywords = $("input[name='keywords']").val();
+        if(keywords.length < 1){
+            layer.msg('请确保必填项不为空');
+            return false;
+        }
+    });
+</script>
+</body>
+</html>

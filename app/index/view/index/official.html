@@ -1,0 +1,26 @@
+{include file='index/public/header' title='文案'}
+<section class="section">
+    <header class="letter-header official-heder">
+        <a href="?type=" {if input('get.type')}{else}class="official-active" {/if}>全部</a>
+        {foreach $type as $value}
+        <a href="?type={$value.id}" {if input('get.type') == $value.id} class="official-active" {/if}>{$value.name}</a>
+        {/foreach}
+    </header>
+    <ul class="letter-lists official-lists">
+        {foreach $word as $value}
+        <li>
+            <div class="letter-msg" onclick="onOfficial('{$value.content}')">{$value.content}</div>
+        </li>
+        {/foreach}
+    </ul>
+</section>
+{include file='index/public/script'}
+<script>
+    const onOfficial = (text) => {
+        $('#smsText',parent.document).val(text);
+        parent.layer.closeAll();
+        parent.jisuanzishu();
+    }
+</script>
+</body>
+</html>

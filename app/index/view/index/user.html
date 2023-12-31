@@ -1,0 +1,147 @@
+{include file='index/public/header' title='个人中心'}
+<footer class="footer">
+    <a href="{:url('index')}">
+        <img src="/static/picture/tab_00.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}">
+        <img src="/static/picture/tab_01.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}" class="show">
+        <img src="/static/picture/tab_03_show.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<section class="section">
+    <div class="user-back" style="background-image: url(/static/image/back_03.png);">
+        <img src="/static/image/img_04.png" alt="用户">
+    </div>
+    <div class="user-info">
+        <div class="user-info-active">
+            <span style="background-image: url({$photo});"></span>
+        </div>
+        <div class="user-info-nick">
+            <div class="user-info-edit" id="userNick">
+                <span>{:session('username')}</span>
+                <img src="/static/picture/icon_11.png"/>
+            </div>
+            <input id="userNickInput" type="text" placeholder="输入昵称" hidden>
+            <div style="background-color: #e7e7e78c;border-radius: 20px;">账户余额<p>￥{$user.money}</p></div>
+        </div>
+    </div>
+    <ul class="user-tool">
+        <li>
+            <a href="{:url('index/send')}">
+                <div class="user-tool-text"><img src="/static/picture/icon_10.png"/>已发短信</div>
+                <i class="icon icon-angle-right"></i>
+            </a>
+        </li>
+        <li>
+            <a href="{:url('index/pay')}">
+                <div class="user-tool-text"><img src="/static/picture/icon_17.png"/>充值余额</div>
+                <i class="icon icon-angle-right"></i>
+            </a>
+        </li>
+        <li>
+            <a href="{:url('index/password')}">
+                <div class="user-tool-text"><img src="/static/picture/icon_08.png"/>修改密码</div>
+                <i class="icon icon-angle-right"></i>
+            </a>
+        </li>
+        {if $web['withdrawalstate'] == 1}
+        <li>
+            <a href="{:url('index/withdrawal')}">
+                <div class="user-tool-text"><img src="/static/picture/icon_00.png"/>余额提现</div>
+                <i class="icon icon-angle-right"></i>
+            </a>
+        </li>
+        {/if}
+        <li>
+            <a href="JavaScript:void(0)" onclick="kefu()">
+                <div class="user-tool-text"><img src="/static/picture/icon_19.png"/>联系客服</div>
+                <i class="icon icon-angle-right"></i>
+            </a>
+        </li>
+        <li>
+            <a href="JavaScript:void(0)" id="logout">
+                <div class="user-tool-text"><img src="/static/picture/icon_09.png"/>退出登录</div>
+                <i class="icon icon-angle-right"></i>
+            </a>
+        </li>
+    </ul>
+</section>
+{include file='index/public/script'}
+<script>
+    $('#logout').click(function () {
+        layer.confirm('确定要退出登录吗？', function (index) {
+            parent.layer.close(index);
+            layer.msg('正在处理中，请稍后...');
+            $.ajax({
+                type:'POST',
+                url:'{:url(\'index/index\')}?logout=Nathan',
+                dataType:'json',
+                success:function (data){
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 'smile', time: 1500}, function () {
+                            location.href = '{:url(\'index/index\')}'
+                        });
+                    }else{
+                        layer.msg(data.msg, {icon: 'cry', anim: 6});
+                    }
+                }
+            });
+        });
+    });
+
+    function kefu() {
+        layer.alert('站长QQ：{$web.webqq}<br>站长微信：{$web.webwx}', {
+            anim: 3,
+            title: '网站客服',
+            skin: 'lyear-skin-info',
+        });
+    }
+    // 编辑昵称
+    $('#userNick').on('click', () => {
+        let userNickVal = $('#userNick span').text()
+        $('#userNick').fadeOut(200)
+        setTimeout(() => {
+            $('#userNickInput').fadeIn(200).val(userNickVal).focus()
+        },200)
+    })
+    // 保存昵称
+    $('#userNickInput').blur(() => {
+        let newUserVal = $('#userNickInput').val()
+        $('#userNickInput').fadeOut(200)
+        setTimeout(() => {
+            $('#userNick').fadeIn(200)
+            $('#userNick span').text(newUserVal)
+        },200)
+        $.ajax({
+            type:'POST',
+            url:'{:url(\'Ajax/update_username\')}',
+            data:{
+                username:newUserVal,
+            },
+            dataType:'json',
+            success:function (data){
+                if(data.code == 0){
+                    layer.msg(data.msg,{time: 1500}, function(){
+                        location.href = '{:url(\'index/user\')}';
+                    });
+                }
+            },
+            error:function(){
+                layer.msg('服务器错误，请稍后再试~');
+                return false;
+            }
+        });
+        return false;
+    })
+</script>
+</body>
+</html>

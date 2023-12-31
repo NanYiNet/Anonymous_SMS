@@ -1,0 +1,263 @@
+{include file='index/public/header' title='写信'}
+<footer class="footer">
+    <a href="{:url('index')}" class="show">
+        <img src="/static/picture/tab_00_show.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}">
+        <img src="/static/picture/tab_01.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}">
+        <img src="/static/picture/tab_03.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<header class="header-tool">
+    <a href="javascript:history.go(-1)">
+        <i class="icon icon-chevron-left"></i>
+    </a>写信
+</header>
+<section class="section">
+    <form class="sms-form">
+        <div class="sms-notice nowrap"><img src="/static/picture/icon_14.png" alt="公告"><marquee direction="left" behavior="scroll" scrollamount="5" style="display: inline-grid;">请勿发送违规信息，否则将报警移交给相关公安机关处理，短信大慨1-10分钟的延迟，22点-8点延迟时间较大，介意请在8点后发送信息，我们使用的是106号码的匿名号码，发送不会显示你自己的号码。</marquee></div>
+        <div class="sms-title">
+            填写手机号
+            <span onclick="explainLay('explain')">使用说明</span>
+        </div>
+        <div class="sms-input">
+            <input type="text" name="name" placeholder="请输入我的姓名">
+        </div>
+        {if $web.smstype == 'phone'}
+        <div class="sms-input">
+            <input type="number" name="mobile" placeholder="请输入对方手机号">
+        </div>
+        <div class="sms-input" hidden>
+            <input type="email" name="email" placeholder="请输入对方邮箱地址">
+        </div>
+        {elseif $web.smstype == 'email'}
+        <div class="sms-input" hidden>
+            <input type="number" name="mobile" placeholder="请输入对方手机号">
+        </div>
+        <div class="sms-input">
+            <input type="email" name="email" placeholder="请输入对方邮箱地址">
+        </div>
+        {/if}
+
+        <div class="sms-edit-flex">
+            <div class="sms-edit-title">
+                <h4>编辑短信</h4>
+                <p>(短信发送价格：¥ {$web.sms_money}/条)</p>
+            </div>
+            <span class="sms-edit-span" onclick="explainLay('wenan')">使用内置文案</span>
+        </div>
+        <div class="sms-edit-block">
+            <img class="sms-edit-back" src="/static/image/img_05.png" alt="back">
+            <img class="sms-edit-circle" src="/static/picture/img_01.png" alt="圆">
+            <textarea id="smsText" name="content" class="sms-edit-textarea" maxlength="900" placeholder="点击输入短信内容（情感、表白、早晚安、道歉、祝福...）"></textarea>
+            <div class="sms-textarea-tool">
+                <div>
+                    <p id="smsTextLength">0/1500</p>
+                    <p>当前发信单价 ¥ {$web.sms_money}</p>
+                </div>
+                {if $web.smstype == 'phone'}
+                <a href="javascript:void(0)"  onclick="explainLay('liulan')">预览短信</a>
+                {/if}
+            </div>
+        </div>
+        <div class="sms-edit-block">
+            <div class="sms-edit-agreement">
+                    <span class="login-form-checkbox">
+                        <input id="agreementCheckbox" name="public" value="1" type="checkbox">
+                        <label for="agreementCheckbox">
+                            <i class="icon icon-check"></i>
+                        </label>
+                    </span>
+                公开信
+            </div>
+            <p class="sms-edit-tips">勾选后你的短信将会被同步到公开信</p>
+        </div>
+        <div class="sms-edit-block">
+            <div class="sms-edit-agreement">
+                    <span class="login-form-checkbox">
+                        <input id="anonymousCheckbox" name="anonymous" value="1" type="checkbox">
+                        <label for="anonymousCheckbox">
+                            <i class="icon icon-check"></i>
+                        </label>
+                    </span>
+                匿名
+            </div>
+            <p class="sms-edit-tips">勾选后你的短信将会是匿名发送</p>
+        </div>
+        <div class="sms-btn">
+            <button type="button"><img src="/static/picture/icon_13.png" />发送</button>
+        </div>
+    </form>
+</section>
+<script src="/static/js/jquery-3.2.1.min.js"></script>
+<script src="/static/js/mzui.min.js"></script>
+<script src="/static/layer/mobile/layer.js"></script>
+<script src="/static/js/rolldate.min.js"></script>
+<script>
+    $('#smsText').bind('input', () => {
+        if($('#smsText').val().length > 900) return
+        jisuanzishu();
+    })
+
+    function jisuanzishu(){
+        $('#smsTextLength').text($('#smsText').val().length + '/1500');
+        $('#price').text("按照60个字一条计算，共"+(Math.ceil($('#smsText').val().length / 60))+"条"+(Math.ceil($('#smsText').val().length / 60))*1+"元");
+    }
+
+    const explainLay = (type) => {
+        let explainContent = `
+            <div class="explain-lay-header">使用说明<i class="icon icon-times" onclick="layer.closeAll()"></i></div>
+            <div class="explain-lay-content">
+                <div class="explain-lay-item">
+                    <h4>1.多久可以发送成功？</h4>
+                    <p>正常10分钟内容就会发送成功的，如果对方手机号有问题(也可能是运营商拦截短信内容)，不能正常收到短信就会发送失败，延迟发送。</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>2.为什么会发送失败?</h4>
+                    <p>发送的时候如果对方处于空号、停机、关机、信号不好等情况就会发送失败，或者延迟好久才会送达。还有可能是运营商拦截的短信，发送失败的可以联系客服退款。</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>3.发送短信是匿名的吗?</h4>
+                    <p>发送的短信是运营商通过随机的106号码发送的哦，不会显示你的手机号号码。</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>4.什么是运营商?</h4>
+                    <p>在国内，我们的短信运营商就是电信、联通、移动三家</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>5.发送失败怎么办?</h4>
+                    <p>发送失败就不建议再继续发送了，因为很大可能也是发送失败的。发送失败可以联系客服退款</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>6.客服审核时间?</h4>
+                    <p>你们提交了短信，我们这边就会收到审核提醒的，会立马审核。22-8点之间审核较慢，因为客服也是要休息的。</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>7.为什么提示内容有违规信息?</h4>
+                    <p>我们内置了文本审核智能系统，检测到了违规词会自动拦截。但是也会有检测不准的情况，这种情况请联系客服解决。</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>8.为什么提示运营商拦截?</h4>
+                    <p>可能对方手机号接受不到短信，屏蔽了106短信，还有就是可能你这边发送违规短信、骚扰短信等。</p>
+                </div>
+                <div class="explain-lay-item">
+                    <h4>8.为什么提示运营商拦截?</h4>
+                    <p>我们内置了文本审核智能系统，检测到了违规词会自动拦截。但是也会有检测不准的情况，这种情况请联系客服解决。</p>
+                </div>
+            </div>`
+        let officialContent = `
+            <div class="explain-lay-header">使用内置文案<i class="icon icon-times" onclick="layer.closeAll()"></i></div>
+            <div class="explain-lay-content">
+                <iframe src="{:url('index/official')}" width="100%" id="official" height="400px" frameborder="no"></iframe>
+            </div>
+        `;
+
+        var plan_time = $("input[name='plan_time']").val();
+        var content = $("#smsText").val();
+
+        let liulanContent = `
+            <div class="explain-lay-header">短信浏览<i class="icon icon-times" onclick="layer.closeAll()"></i></div>
+            <div class="explain-lay-content">
+                <p style="text-align: center;">1069*********0075</p>
+                <p style="text-align: center;font-size: 12px;">${plan_time}</p>
+                <p style="width: 80%;float: left;background-color: #0a67fb;padding: 5px;border-radius: 5px;color: #fff;">【{$web.autograph}】${content}</p>
+                <p style="text-align: center;float: right;background-color: #b9b9b9;width: 10%;line-height: 30px;padding: 5px;
+    border-radius: 5px;">我</p>
+            </div>
+        `;
+
+        if(type === 'explain'){
+            neirong = explainContent;
+        }else if(type === 'wenan'){
+            neirong = officialContent;
+        }else if(type === 'liulan'){
+            neirong = liulanContent;
+        }
+
+        layer.open({
+            type: 1,
+            content: neirong,
+            anim: 'up',
+            style: 'position:fixed; bottom:0; left:0; width: 100%; border-radius: 10px 10px 0 0;'
+        })
+    }
+
+    $("#official").contents().find(".letter-msg").click(function(){
+        console.log($(this));
+    });
+
+    $("button").click(function(){
+        var name = $("input[name='name']").val();
+        var mobile = $("input[name='mobile']").val();
+        var email = $("input[name='email']").val();
+        var content = $("#smsText").val();
+        var public = $("input[name='public']").val();
+        var anonymous = $("input[name='anonymous']").val();
+        var public = 0;
+        var anonymous = 0;
+        if($('#agreementCheckbox').is(':checked')){
+            public = 1;
+        }
+        if($('#anonymousCheckbox').is(':checked')){
+            anonymous = 1;
+        }
+
+        if(content==''){
+            layer.open({
+                content: "请完整填写内容后在提交。",
+                skin   : "msg",
+                time   : 2
+            })
+            return false;
+        }
+
+        layer.open({type: 2,content: '正在请求中，请稍后~'});
+
+        $.ajax({
+            url:"{:url(\'Ajax/sendsms\')}",
+            type:"POST",
+            dataType: "json",
+            data:{
+                name:name,
+                mobile:mobile,
+                email:email,
+                content:content,
+                public:public,
+                anonymous:anonymous,
+            },
+            success: function(data){
+                layer.closeAll();
+                if(data.code == 1){
+                    layer.open({
+                        content: data.msg,
+                        skin   : "msg",
+                        time   : 2
+                    })
+                    setTimeout(function (){
+                        location.href = "{:url('index/send')}";
+                    }, 1000);
+                    return false;
+                }else{
+                    layer.open({
+                        content: data.msg,
+                        skin   : "msg",
+                        time   : 2
+                    })
+                    return false;
+                }
+            }
+        });
+        return false;
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+{include file='public/header'}
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">查询类型:</label>
+                    <div class="layui-input-inline">
+                        <select name="type" lay-verType="tips" lay-verify="required" required/>
+                        <option value="">请选择查询类型</option>
+                        <option value="phone">手机号/邮箱</option>
+                        <option value="username">所属用户名</option>
+                        <option value="order">订单号</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">查询内容</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="value" class="layui-input" placeholder="输入查询内容" lay-verType="tips" lay-verify="required" required/>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="Nathan_Search">
+                        <i class="layui-icon layui-icon-search"></i>
+                        查询
+                    </button>
+                    <button type="reset" class="pear-btn pear-btn-md">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="Nathan_Table" lay-filter="Nathan_Table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="Nathan_toolbar">
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script type="text/html" id="Nathan_Function">
+    {{# if(d.status==0){ }}
+    <span class="pear-btn pear-btn-warming pear-btn-xs" lay-event="resend">重新发送</span>
+    {{# }else if(d.status==2){ }}
+    <span class="pear-btn pear-btn-warming pear-btn-xs" lay-event="resend">确定发送</span>
+    {{# } }}
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i></button>
+</script>
+
+<script type="text/html" id="Nathan_TbState">
+    {{# if(d.status==0){ }}
+    <span class="pear-btn pear-btn-danger pear-btn-xs">发送失败</span>
+    {{# }else if(d.status==1){ }}
+    <span class="pear-btn pear-btn-success pear-btn-xs">发送成功</span>
+    {{# }else if(d.status==2){ }}
+    <span class="pear-btn pear-btn-info pear-btn-xs" >等待发送</span>
+    {{# } }}
+</script>
+<script type="text/html" id="Nathan_Money">
+    <span plain class="pear-btn pear-btn-primary pear-btn-xs">￥{{d.money}}</span>
+</script>
+{include file='public/script'}
+<script>
+    layui.use(['table', 'form', 'jquery','common'], function() {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let common = layui.common;
+        let cols = [
+            [{
+                type: 'checkbox'
+            },{
+                title: 'ID',
+                field: 'id',
+                align: 'center',
+                width: 200,
+                hide: true
+            },{
+                title: '姓名',
+                field: 'name',
+                align: 'center',
+                width: 200,
+            },{
+                title: '手机号/邮箱',
+                field: 'phone',
+                align: 'center',
+                width: 200,
+            },{
+                title: '所属用户',
+                field: 'username',
+                align: 'center',
+                width: 200,
+            },{
+                title: '内容',
+                field: 'content',
+                align: 'center',
+                width: 200,
+            },{
+                title: '订单号',
+                field: 'order',
+                align: 'center',
+                width: 200,
+            },{
+                title: '订单金额',
+                field: 'money',
+                align: 'center',
+                width: 200,
+                templet: '#Nathan_Money'
+            },{
+                title: '创建时间',
+                field: 'date',
+                align: 'center',
+                width: 200,
+            },
+                {
+                    title: '状态',
+                    field: 'status',
+                    align: 'center',
+                    width: 200,
+                    templet: '#Nathan_TbState'
+                },
+                {
+                    title: '操作',
+                    toolbar: '#Nathan_Function',
+                    align: 'center',
+                    width: 200
+                }
+            ]
+        ]
+
+        table.render({
+            elem: '#Nathan_Table',
+            url: '{:url(\'Ajax/sms_list\')}',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            toolbar: '#Nathan_toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(Nathan_Table)', function(obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'resend') {
+                window.resend(obj);
+            } else if (obj.event === 'refund') {
+                window.refund(obj);
+            }
+        });
+
+        table.on('toolbar(Nathan_Table)', function(obj) {
+            if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }
+        });
+
+        form.on('submit(Nathan_Search)', function(data) {
+            table.reload('Nathan_Table', {
+                where: data.field
+            })
+            return false;
+        });
+
+        window.resend = function(obj) {
+            layer.confirm('确定要重新发送吗？', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+                $.post('{:url(\'Ajax/resend\')}', {
+                    id: obj.data ? obj.data.id : '',
+                }, function (res) {
+                    layer.close(loading);
+                    if (res.code === 1) {
+                        layer.msg(res.msg, {icon: 1});
+                        table.reload('Nathan_Table');
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, 'json');
+            });
+        }
+
+        window.remove = function(obj) {
+            layer.confirm('确定要删除该数据', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+                $.post('{:url(\'Ajax/sms_del\')}', {
+                    id: obj.data ? obj.data.id : '',
+                }, function (res) {
+                    layer.close(loading);
+                    if (res.code === 1) {
+                        layer.msg(res.msg, {icon: 1});
+                        table.reload('Nathan_Table');
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, 'json');
+            });
+        }
+
+        window.batchRemove = function(obj) {
+
+            var checkIds = common.checkField(obj,'id');
+
+            if (checkIds === "") {
+                layer.msg("未选中数据", {
+                    icon: 3,
+                    time: 1000
+                });
+                return false;
+            }
+
+            layer.confirm('确定要删除这些数据', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+                $.post('{:url(\'Ajax/sms_del\')}', {
+                    ids: common.checkField(obj,'id')
+                }, function (res) {
+                    layer.close(loading);
+                    if (res.code === 1) {
+                        layer.msg(res.msg, {icon: 1});
+                        table.reload('Nathan_Table');
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, 'json');
+            });
+        }
+
+        window.refresh = function(param) {
+            table.reload('Nathan_Table');
+        }
+    })
+</script>
+</body>
+</html>

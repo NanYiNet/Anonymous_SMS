@@ -1,0 +1,66 @@
+{include file='index/public/header' title='站点公告'}
+<footer class="footer">
+    <a href="{:url('index')}">
+        <img src="/static/picture/tab_00.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}">
+        <img src="/static/picture/tab_01.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}" class="show">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}">
+        <img src="/static/picture/tab_03.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<section class="section">
+    <div class="header">
+        <div class="header-active">
+            <span style="background-image: url({$photo});"></span>
+        </div>
+        <div class="header-text">站点公告</div>
+    </div>
+    <ul class="letter-lists" style="padding: 20px 0 0 0">
+        {foreach $list as $value}
+        <script>
+            function notice{$value.id}(){
+                layer.open({
+                    type: 1,
+                    anim: 1,
+                    title: '{$value.title}',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true,
+                    area: '300px;',
+                    content: '<div style="padding: 40px; line-height: 20px;font-weight: 150;"><b>{:htmlspecialchars_decode($value.content)}</b></div>',
+                });
+            }
+        </script>
+        <li>
+            <div class="letter-lists-flex">
+                <div class="letter-lists-user" style="padding-left: 80px;width: 70%;">
+                    <span class="letter-user-active" style="background-image: url(/static/picture/tab_01_show.png);width: 70px;height: 70px;"></span>
+                    <div class="letter-user-nick nowrap" style="white-space:normal;">
+                        <p style="margin: 0px">{$value.title}</p>
+                        <p style="margin: 0px;color: #919191;">{$value.date}</p>
+                    </div>
+                </div>
+                <div class="letter-lists-time"><a onclick="notice{$value.id}()" style="border: 1px solid #d5d5d5;padding: 8px 18px;border-radius: 20px;color: #000;">查看详细</a></div>
+            </div>
+        </li>
+        {/foreach}
+    </ul>
+    <div class="pagination">{$list|raw}</div>
+<!--    <div class="dev-center">-->
+<!--        <img src="/static/image/dev_img.png" alt="开发中">-->
+<!--        <h4>敬请期待</h4>-->
+<!--        <p>程序员正在建设中...</p>-->
+<!--    </div>-->
+</section>
+{include file='index/public/script'}
+</body>
+</html>

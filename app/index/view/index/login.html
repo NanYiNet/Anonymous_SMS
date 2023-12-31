@@ -1,0 +1,309 @@
+{include file='index/public/header' title='登录/注册'}
+<!-- section -->
+<section class="section">
+    <div class="login-content">
+        <!-- header -->
+        <div class="login-header">
+            <span></span>
+        </div>
+        <!-- title -->
+        <div class="login-title">登录/注册</div>
+        <!-- form -->
+        <form class="login-form" action="">
+            <div class="login-form-input">
+                <img class="login-form-icon" src="/static/picture/icon_03.png" alt="用户名">
+                <input type="text" id="username" name="username" placeholder="请输入用户名">
+            </div>
+            <div class="login-form-input login-form-password">
+                <img class="login-form-icon" src="/static/picture/icon_04.png" alt="密码">
+                <input type="password" name="password" id="password" placeholder="请输入密码或设置密码">
+                <div class="login-password-icon">
+                    <img src="/static/picture/icon_05.png" alt="icon">
+                </div>
+            </div>
+            <div class="login-form-input login-form-code" style="display: none">
+                <img class="login-form-icon" src="/static/picture/icon_02.png" alt="验证码">
+                <input type="text" name="code" placeholder="请输入验证码">
+                <img src="{:captcha_src()}" class="pull-right login-code-btn" onclick="this.src=this.src+'?d='+Math.random();" title="点击刷新" alt="captcha">
+            </div>
+            <div class="login-form-btn">
+                <button type="button" disabled="" id="login">登录或注册</button>
+            </div>
+            <div class="login-form-tips">
+                <img src="/static/picture/icon_06.png" alt="提示">
+                <Nathan>请输入<span>用户名</span>自动检测新老账号</Nathan>
+            </div>
+            <div class="login-form-agreement" style="display: none">
+                    <span class="login-form-checkbox">
+                        <input id="agreementCheckbox" type="checkbox">
+                        <label for="agreementCheckbox">
+                            <i class="icon icon-check"></i>
+                        </label>
+                    </span>
+                我同意<a href="javascript:void(0)" onclick="protocol()">用户协议</a>，并遵守和承担相关法律法规
+            </div>
+        </form>
+    </div>
+</section>
+<script src="/static/js/jquery-3.2.1.min.js"></script>
+<script src="/static/js/mzui.min.js"></script>
+<script src="/static/layer/mobile/layer.js"></script>
+<script>
+    // 勾选协议
+    $('#agreementCheckbox').change(val => {
+        if($('#agreementCheckbox').is(':checked')){
+            $('.login-form-btn > button').removeAttr('disabled')
+            return
+        }
+        $('.login-form-btn > button').attr('disabled', 'disabled')
+    })
+
+    // 判断是否点击了密码，然后校验账号
+    $(".login-form-password").click(function () {
+        var username = $("input[name='username']").val();
+        if(username.length < 1){
+            layer.open({
+                content: "请输入用户名",
+                skin   : "msg",
+                time   : 2
+            })
+            return false;
+        }
+        var load = layer.open({type: 2,content: '正在查询中，请稍后~'});
+        $.ajax({
+            type:'POST',
+            url:'{:url(\'Ajax/check_username\')}',
+            data:{
+                username:username,
+            },
+            dataType:'json',
+            success:function (data){
+                layer.close(load)
+                if(data.code == 0){
+                    $(".login-form-code").css('display','block');
+                    $(".login-form-agreement").css('display','block');
+                    $(".login-form-btn button").html("注册");
+                    $(".login-form-tips Nathan").html("请勾选下方<span>协议</span>方可注册");
+                    if($('#agreementCheckbox').is(':checked')){
+                        $('.login-form-btn > button').removeAttr('disabled')
+                        return
+                    }
+                    $('.login-form-btn > button').attr('disabled', 'disabled')
+                }
+                if(data.code == 1){
+                    $(".login-form-code").css('display','block');
+                    $(".login-form-agreement").css('display','none');
+                    $(".login-form-btn button").html("登录");
+                    $('.login-form-btn > button').removeAttr('disabled');
+                    $(".login-form-tips Nathan").html("输入你的登录密码进行登录");
+                }
+            }
+        });
+        return false;
+    })
+
+    //提交注册或登录
+    $('#login').click(function () {
+        var username = $("input[name='username']").val();
+        var password = $("input[name='password']").val();
+        var code = $("input[name='code']").val();
+        if(username.length < 1 || password.length < 1 || code.length < 1){
+            layer.open({
+                content: '请确保必填项不为空',
+                skin   : "msg",
+                time   : 2
+            })
+            return false;
+        }
+        var load = layer.open({type: 2,content: '正在处理中，请稍后~'});
+        $.ajax({
+            type:'POST',
+            url:'{:url(\'Ajax/login\')}',
+            data:{
+                username:username,
+                password:password,
+                code:code,
+            },
+            dataType:'json',
+            success:function (data){
+                layer.close(load)
+                if(data.code == 1){
+                    layer.open({
+                        content: data.msg,
+                        skin   : "msg",
+                        time   : 2
+                    });
+                    location.href = '{:url(\'index/user\')}';
+                }else{
+                    layer.open({
+                        content: data.msg,
+                        skin   : "msg",
+                        time   : 2
+                    });
+                    $('.login-code-btn').click();
+                }
+            },
+            error:function(){
+                layer.close(load);
+                layer.open({
+                    content: '服务器错误，请稍后再试~',
+                    skin   : "msg",
+                    time   : 2
+                });
+                return false;
+            }
+        });
+        return false;
+    });
+
+    // 查看显示密码
+    $(".login-password-icon").click(function () {
+        if($("#password").attr('type')=='text'){
+            $("#password").attr('type','password');
+        }else {
+            $("#password").attr('type','text');
+        }
+    });
+
+    function protocol(){
+        layer.open({
+            type: 1,
+            content: `
+                    <div class="ad-lay">
+                        <i class="icon icon-times" onclick="layer.closeAll()"></i>
+                        <div class="ad-lay-content">
+                            <p>为了维护平台内容质量及友善的社区氛围，平台会依据本规范中的条款对用户和用户发布的内容进行管理，在您勾选本协议并成功注册账号后既表示用户已充分阅读、理解并同意接受本协议全部内容的约束，用户承诺接受并遵守本协议的约定，届时用户不应以未阅读本协议的内容等理由主张本协议无效，或要求撤销本协议。</p>
+
+<p>&nbsp;</p>
+
+<p><strong>一、基本原则（包括发布信件和发表公开信服务）</strong><br />
+1.规范适用于所有用户。<br />
+2.须遵纪守法，对他人保持友善和尊重。不得发表发送违背法律法规及社会公德的内容，用户需要对自己发表和发送的内容负责，平台有权删除不符合社区规范的内容。<br />
+3.用户访问或使用我方产品，即视为同意接受本规范的全部内容。<br />
+4.用户同意，对用户在匿名信上发表的全部内容，不可撤销的授予一封你得来信不限时间和地域范围的非独家使用权。匿名信有权在匿名信各种形态的产品和服务上(包括但不限干网站微信公众以及发表的应用或其他互联网产品)对该内容讲行使用(包括但不限于根据情况对该内容进行署名或匿名转载以及对该内容讲行引用改编等二次创作)匿名信引用，改编等二次创作所产生的新的作品的著作权属平台所有，未经平台事先书面同意，用户不得擅自进行使用平台和其他品牌合作的版权归属，以合同协议为准。</p>
+
+<p>5.匿名信仅为用户发布的内容提供存储空间和发信服务，提供用户自行上传公开信服务，平台不对用户发表，转载的内容提供任何形式的保证:平台不保证网络服务一定能满足用户的要求，也不保证网络服务不会中断，对网络服务的及时性，安全性，准确性也都不作保证，对于因不可抗力或平台不能控制的原因造成的网络服务中断或其它缺陷，平台不承担任何责任，但将尽力减少因此而给用户造成的损失和影响。</p>
+
+<p>6.用户在匿名信发表的内容(包含但不限于平台目前各产品功能里的内容)仅表明其个人的立场和观点，并不代表平台的立场或观点。作为内容的发表者，需自行对所发表内容负责，因所发表内容引发的一切纠纷，由该内容的发表者承担全部法律及连带责任。平台不承担任何法律及连带责任。</p>
+
+<p>7.个人或单位如认为平台上存在侵犯自身合法权益的内容，应准备好具有法律效应的证明材料，及时与平台取得联系，以便平台迅速做出处理。</p>
+
+<p>8.用户在发送信息失败或者设置的定时时间没有到达之前，有权联系平台进行取消短信发送服务，付款金额将原路退还。</p>
+
+<p>9.匿名信不保证发送短信的100%到达率，由运营商决定。附则对免责声明的解释、修改及更新权均属平台所有。</p>
+
+<p>&nbsp;</p>
+
+<p><strong>二、信息规范</strong></p>
+
+<p>平台可能采取删除违规内容、终止违规用户使用功能等方式，对以下违法、不良信息或存在危害的行为进行处理，也包括封禁用户账号，同样适用于提交发表公开信内容服务。<br />
+发送违反法律法规：发布违反国家相关法律法规及管理规定的信息<br />
+发送反对宪法所确定的基本原则的内容<br />
+发送危害国家安全，泄露国家秘密，颠覆国家政权，破坏国家统一的内容<br />
+发送损害国家荣誉和利益的内容<br />
+发送煽动民族仇恨、民族歧视，破坏民族团结的内容<br />
+发送侮辱、滥用英烈形象，否定英烈事迹，美化粉饰侵略战争行为的的内容<br />
+发送破坏国家宗教政策，宣扬邪教和封建迷信的内容<br />
+发送散布谣言，扰乱社会秩序，破坏社会稳定的内容<br />
+发送宣扬淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的内容<br />
+发送煽动非法集会、结社、游行、示威、聚众扰乱社会秩序的内容<br />
+发送诽谤他人，泄露他人隐私，侵害他人合法权益的内容<br />
+发送含有法律、行政法规禁止的其他内容的信息的内容<br />
+不友善行为，包括但不限于以下几点：<br />
+发送人身攻击及辱骂他人的内容。<br />
+发送针对以下群体发表诅咒、歧视、漠视生命尊严等性质的言论，群体包括：国籍、地域、性别、性别认同、性倾向、种族、疾病、宗教、残障群体等的内容。<br />
+发送对他人进行诅咒、恐吓或威胁的内容。<br />
+发送针对他人的私德、观点立场、素质、能力等方面的贬低或不尊重的内容。<br />
+发送讽刺他人，阴阳怪气地表达批评的内容。<br />
+发送对他人使用粗俗用语，并产生了冒犯的内容。<br />
+发布垃圾广告信息：用户以推广曝光为目的，发布影响用户体验、扰乱社区秩序的内容，或进行相关行为，包括但不限于以下几点：<br />
+多次发布包含售卖产品、提供服务、宣传推广内容的垃圾广告。<br />
+使用严重影响用户体验的违规手段进行恶意营销。<br />
+恶意行为：滥用产品功能，进行影响用户体验，危及平台安全及损害他人权益的行为。包括但不限于以下几点：<br />
+重复发送干扰正常用户体验的内容。<br />
+发送含有潜在危险的内容，或使用第三方网站伪造跳转链接，如钓鱼网站、木马、病毒网站等。<br />
+发送微信、QQ、电话等联系方式。<br />
+色情低俗信息，包括但不限于以下几点：<br />
+包含自己或他人性经验的细节描述或露骨的感受描述<br />
+涉及色情段子、两性笑话的低俗内容<br />
+带有性暗示、性挑逗等易使人产生性联想<br />
+展现血腥、惊悚、残忍等致人身心不适<br />
+炒作绯闻、丑闻、劣迹等<br />
+宣扬低俗、庸俗、媚俗内容<br />
+不实信息，包括但不限于以下几点：<br />
+可能存在事实性错误或者造谣等内容<br />
+存在事实夸大、伪造虚假经历等误导他人的内容<br />
+伪造身份、冒充他人，通过头像、用户名等个人信息暗示自己具有特定身份，或与特定机构或个人存在关联<br />
+传播封建迷信，包括但不限于以下几点：<br />
+宣扬鼓励封建迷信等活动，推广算命等理论<br />
+其他危害行为或内容，包括但不限于以下几点：<br />
+可能引发未成年人模仿不安全行为和违反社会公德行为、诱导未成年人不良嗜好影响未成年人身心健康的<br />
+不当评述自然灾害、重大事故等灾难的<br />
+美化、粉饰侵略战争行为的<br />
+法律、行政法规禁止，或可能对网络生态造成不良影响的其他内容。</p>
+
+<p><br />
+<strong>三. 违规行为处理流程</strong><br />
+平台通过主动发现和接受用户举报两种方式收集违规行为信息。用户可以向平台反馈涉嫌规范的的行为和用户。违规的信息由平台根据规范直接处理并永久封禁账号。<br />
+侵权投诉：用户在平台发布的内容仅表明其个人的立场和观点，并不代表平台的立场和观点。如个人或企业发现平台上存在侵犯自身合法权益的内容，可以向平台进行投诉。为了保证问题能够及时有效地处理，平台将要求投诉人提交真实有效、完整清晰的证明材料，否则投诉将无法受理。<br />
+实名声明：平台鼓励用户发送积极向上阳光的内容，共同营造更加和谐的社区环境。</p>
+
+<p>&nbsp;</p>
+
+<p><strong>第四条 保密条款</strong></p>
+
+<p>1.本协议所称保密信息(包括发送内容和手机号码)，是指一方（以下简称&ldquo;接受方&rdquo;）从对方（以下简称&ldquo;披露方&rdquo;）取得的、获知的、或因双方履行本协议而共同创造且具有不可分割性的商业秘密（包括财务秘密）、技术秘密、经营诀窍和（或）其他应予保密的信息和资料，无论上述信息和资料以何种形式或载于何种载体，无论披露方在披露时是否以口头、图像或书面等方式表明其具有保密性。</p>
+
+<p>2.本协议有效期内及其终止后，任何一方均不应向任何第三方披露、泄漏或提供保密信息。</p>
+
+<p>3.平台与您双方应采取适当措施妥善保存对方提供的保密信息，措施的审慎程度不少于其保护自身的保密信息时的审慎程度。双方仅能将保密信息用于与本协议项下的有关用途或目的。</p>
+
+<p>4.双方保证保密信息仅可在各自一方从事该业务的负责人和雇员范围内知悉。在双方上述人员知悉该保密信息前，应向其提示保密信息的保密性和应承担的义务，并以可证明的方式表明上述人员确实承担本协议项下的保密责任。</p>
+
+<p>5.如确有必要，接受方应按照保密信息披露方的指示将含有保密资料的所有文件或其他资料归还给披露方，或按其指示予以销毁。</p>
+
+<p>6.本条上述限制条款不适用于以下情况：</p>
+
+<p>a) 在接受本协议之时或之前，该保密信息已以合法方式属接受方所有；<br />
+b) 保密信息在通知给接受方时，已经公开或能从公开领域获得；<br />
+c) 保密信息是接受方从与其没有保密或不透露义务的第三方获得的；<br />
+d) 在不违反本协议项约定责任的前提下，该保密信息已经公开或能从公开领域获得；<br />
+e) 该保密信息是接受方或其关联或附属公司独立开发，而且未从通知方或其关联或附属公司获得的信息中获益；<br />
+f) 接受方应法院或其它法律、行政管理部门要求披露的信息（通过口头提问、询问、要求资料或文件、传唤、民事或刑事调查或其他程序）因而透露保密信息，在该种情况发生时，接受方应立即向披露方发出通知，并作出必要说明。<br />
+7.平台与您双方亦对本协议的具体内容负有保密责任。</p>
+
+<p>8.平台与您双方为了履行本协议而进行的沟通、通知、告知等文件传递或文件交换，应由双方妥善保存，不得用于不利于双方开展业务的目的。双方不得诋毁诽谤对方，亦不得在公开场合以攻击对方为目的发布不利于双方的言论。</p>
+
+<p>&nbsp;</p>
+
+<p><strong>第六条 知识产权</strong></p>
+
+<p>1.网站上所有内容，包括但不限于著作、图片、档案、资讯、资料、网站架构、网站画面的安排、网页设计，均由平台或其他权利人依法拥有其知识产权。非经平台或其他权利人书面同意任何人不得擅自使用、修改、复制、公开传播、改变、散布、发行或公开发表网站程序或内容。</p>
+
+<p>2.未经平台同意，您不得擅自使用您或其关联公司的商标、名称以及平台相关商标及其标识。</p>
+
+<p>3.开发者独立开发的应用的知识产权归其该所有人所有；权利人同意授予平台及其关联公司在全球范围内享有免费的、永久性的、不可撤消的、非独家的、可转让、可分许可的许可，许可平台应用开发平台使用、调用、演示产品等。该许可不受双方合作终止以及本协议终止的影响。</p>
+
+<p>4.本协议项目合作涉及的系统、代码、数据、品牌等，均由双方各自依法拥有知识产权，未经权利拥有一方的书面同意，另一方不得擅自使用、修改、复制、公开传播、发行，否则，权利拥有一方有权立即终止本协议并要求对方赔偿全部损失（包括但不限于调查取证费用、公证费用、律师费等）。</p>
+
+<p>5.您不得将平台基于本项目合作提供的技术接口、源代码及算法等进行反向工程、反汇编、重构、反编译、翻译、修改、复制，或者在未经明确允许的情况下创作衍生作品。</p>
+
+<p>本协议如在履行过程中发生议，由双方协商解决:协商不成的，任何一方有权向广州仲裁委员会根据其届时有效的仲裁规则进行仲裁，仲裁裁决是终局性的，对双方均有约束力。</p>
+
+<p>&nbsp;</p>
+
+<p><strong>隐私保护技术服务条款</strong><br />
+1.您使用本服务应当阅读并遵守《用户协议》及本服务条款。如遇《用户协议》与本服务条款不一致之处，优先适用本服务条款。无论是否实际阅读本协议，您通过网络页面点击确认本条款或实际使用隐私保护技术服务，均表示您与平台已就本条款达成一致并同意接受本条款的全部约定内容。</p>
+
+<p>2.号码隐私保护服务：指平台与基础电信运营商合作为用户提供的短信发送服务，基础运营商为用户提供一个虚拟号码（以下简称虚拟号码），用户在发送短信时使用的虚拟号码发送。</p>
+
+<p>3.用户发送的内容和接受的电话号码属于客户的隐私，平台不会披露给任何第三方。</p>                        </div>
+                    </div>
+                `,
+            style: 'border-radius: 10px;'
+        })
+    }
+
+</script>
+</body>
+</html>

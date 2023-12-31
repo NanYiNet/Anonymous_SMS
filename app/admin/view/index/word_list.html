@@ -1,0 +1,235 @@
+{include file='public/header'}
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">文案内容</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="content" class="layui-input" placeholder="输入文案内容" lay-verType="tips" lay-verify="required" required/>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="Nathan_Search">
+                        <i class="layui-icon layui-icon-search"></i>
+                        查询
+                    </button>
+                    <button type="reset" class="pear-btn pear-btn-md">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="Nathan_Table" lay-filter="Nathan_Table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="Nathan_toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script type="text/html" id="Nathan_Function">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="layui-icon layui-icon-edit"></i></button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i></button>
+</script>
+
+<script type="text/html" id="Nathan_TbState">
+    <input type="checkbox" lay-filter="Nathan_TbStateCk" value="{{d.id}}" lay-skin="switch"
+           lay-text="正常|异常" {{d.status==1?'checked':''}} style="display: none;"/>
+    <p style="display: none;">{{d.status==0?'正常':'异常'}}</p>
+</script>
+{include file='public/script'}
+<script>
+    layui.use(['table', 'form', 'jquery','common'], function() {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let common = layui.common;
+        let cols = [
+            [{
+                type: 'checkbox'
+            },
+                {
+                    title: 'ID',
+                    field: 'id',
+                    align: 'center',
+                    hide: true
+                },{
+                title: '文案内容',
+                field: 'content',
+                align: 'center',
+                width: 200,
+            },{
+                title: '分类ID',
+                field: 'typeid',
+                align: 'center',
+                width: 200,
+            },{
+                title: '创建时间',
+                field: 'date',
+                align: 'center',
+                width: 200,
+            },{
+                title: '状态',
+                field: 'status',
+                align: 'center',
+                width: 200,
+                templet: '#Nathan_TbState'
+            },{
+                title: '操作',
+                toolbar: '#Nathan_Function',
+                align: 'center',
+                width: 130
+            }
+            ]
+        ]
+
+        table.render({
+            elem: '#Nathan_Table',
+            url: '{:url(\'Ajax/word_list\')}',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            toolbar: '#Nathan_toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(Nathan_Table)', function(obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        table.on('toolbar(Nathan_Table)', function(obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }
+        });
+
+        form.on('submit(Nathan_Search)', function(data) {
+            table.reload('Nathan_Table', {
+                where: data.field
+            })
+            return false;
+        });
+
+        //修改状态
+        form.on('switch(Nathan_TbStateCk)', function (obj) {
+            var loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+            $.post('{:url(\'Ajax/word_status\')}', {
+                id: obj.elem.value,
+            }, function (res) {
+                layer.close(loading);
+                if (res.code === 1) {
+                    layer.msg(res.msg, {icon: 1});
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                    $(obj.elem).prop('checked', !obj.elem.checked);
+                    form.render('checkbox');
+                }
+            }, 'json');
+        });
+
+        window.add = function() {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: [common.isModile()?'100%':'500px', common.isModile()?'100%':'400px'],
+                content: '{:url(\'Word/word_add\')}'
+            });
+        }
+
+        window.edit = function(obj) {
+            layer.open({
+                type: 2,
+                title: '修改ID: '+obj.data.id+'',
+                shade: 0.1,
+                area: [common.isModile()?'100%':'500px', common.isModile()?'100%':'400px'],
+                content: '{:url(\'Word/word_edit\')}?id='+obj.data.id
+            });
+        }
+
+        window.remove = function(obj) {
+            layer.confirm('确定要删除该数据', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+                $.post('{:url(\'Ajax/word_del\')}', {
+                    id: obj.data ? obj.data.id : '',
+                }, function (res) {
+                    layer.close(loading);
+                    if (res.code === 1) {
+                        layer.msg(res.msg, {icon: 1});
+                        table.reload('Nathan_Table');
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, 'json');
+            });
+        }
+
+        window.batchRemove = function(obj) {
+
+            var checkIds = common.checkField(obj,'id');
+
+            if (checkIds === "") {
+                layer.msg("未选中数据", {
+                    icon: 3,
+                    time: 1000
+                });
+                return false;
+            }
+
+            layer.confirm('确定要删除这些数据', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+                $.post('{:url(\'Ajax/word_del\')}', {
+                    ids: common.checkField(obj,'id')
+                }, function (res) {
+                    layer.close(loading);
+                    if (res.code === 1) {
+                        layer.msg(res.msg, {icon: 1});
+                        table.reload('Nathan_Table');
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, 'json');
+            });
+        }
+
+        window.refresh = function(param) {
+            table.reload('Nathan_Table');
+        }
+    })
+</script>
+</body>
+</html>

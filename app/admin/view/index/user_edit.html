@@ -1,0 +1,64 @@
+{include file='public/header'}
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-header">修改用户</div>
+    <div class="layui-card-body">
+        <form style="margin-top: 0px;" class="layui-form">
+            <div class="layui-form-item" hidden>
+                <input name="id" value="{$data.id}" class="layui-input" lay-verType="tips" lay-verify="required" required disabled/>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-required">用户名：</label>
+                <input name="username" value="{$data.username}" placeholder="请输入用户名" class="layui-input" lay-verType="tips" lay-verify="required" required />
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-required">用户密码：</label>
+                <input name="password" placeholder="请输入用户密码（不修改则留空）" class="layui-input" lay-verType="tips" lay-verify="h5"/>
+            </div>
+            <div class="layui-form-item">
+                <label>用户余额：</label>
+                <input type="number" value="{$data.money}" name="money" placeholder="请输入用户余额(¥)" class="layui-input" lay-verType="tips" lay-verify="required" required>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <button class="pear-btn pear-btn-primary" lay-submit lay-filter="Nathan">
+                    <i class="layui-icon layui-icon-ok"></i> 提交
+                </button>
+                <button type="reset" class="pear-btn">
+                    <i class="layui-icon layui-icon-refresh"></i> 重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+<!-- js部分 -->
+{include file='public/script'}
+<script>
+    layui.use(['jquery','layer', 'form'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+
+        form.on('submit(Nathan)', function(data) {
+            var loadIndex = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+            $.ajax({
+                url: '{:url(\'Ajax/user_edit\')}',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function(result) {
+                    layer.close(loadIndex);
+                    if (result.code === 1) {
+                        layer.msg(result.msg, {icon: 6, time: 1500});
+                    } else {
+                        layer.msg(result.msg, {icon: 5, anim: 6});
+                    }
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

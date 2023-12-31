@@ -1,0 +1,322 @@
+{include file='public/header'}
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-header">网站配置</div>
+    <div class="layui-card-body">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+            <ul class="layui-tab-title" style="text-align: center">
+                <li class="layui-this">网站配置</li>
+                <li>发信配置</li>
+                <li>支付配置</li>
+                <li>模板配置</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <label>网站名称：</label>
+                            <input name="webname" value="{$web.webname}" placeholder="请输入网站名称" class="layui-input" lay-verType="tips" lay-verify="required" required/>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>网站关键词：</label>
+                            <input name="keywords" value="{$web.keywords}" placeholder="请输入网站关键词" class="layui-input" lay-verType="tips">
+                        </div>
+                        <div class="layui-form-item">
+                            <label>网站描述：</label>
+                            <input name="description" value="{$web.description}" placeholder="请输入网站描述" class="layui-input" lay-verType="tips">
+                        </div>
+                        <div class="layui-form-item">
+                            <label>站长QQ：</label>
+                            <input name="webqq" value="{$web.webqq}" placeholder="请输入站长QQ" class="layui-input" lay-verType="tips" maxlength="10" lay-verify="required|h5" required/>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>站长微信：</label>
+                            <input name="webwx" value="{$web.webwx}" placeholder="请输入站长微信" class="layui-input" lay-verType="tips" lay-verify="required|h5" required/>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>LOGO：</label>
+                            <div>
+                                <input name="logo" style="display:inline-block; ;width:58% " value="{$web.logo}" id="image-upload-value" placeholder="请输入网站LOGO" class="layui-input" lay-verType="tips">
+                                <button type="button" class="pear-btn pear-btn-primary" id="image-upload" style="margin-left:0px" >
+                                    <i class="layui-icon"></i>上传LOGO
+                                </button>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>网站备案号：</label>
+                            <input name="icp" value="{$web.icp}" placeholder="请输入网站备案号" class="layui-input" lay-verType="tips">
+                        </div>
+                        <div class="layui-form-item">
+                            <label>网站公告：</label>
+                            <textarea name="notice" placeholder="请输入网站公告" class="layui-textarea" lay-verType="tips">{:htmlspecialchars_decode($web.notice)}</textarea>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>IP黑名单提示：</label>
+                            <textarea name="ip_tips" placeholder="请输入IP黑名单提示" class="layui-textarea" lay-verType="tips">{$web.ip_tips}</textarea>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>敏感词黑名单：</label>
+                            <textarea name="black_words" placeholder="请输入敏感词黑名单" style="margin-top: 0px; margin-bottom: 0px; height: 200px;" class="layui-textarea" lay-verType="tips">{$web.black_words}</textarea>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>注册开关</label>
+                            <div>
+                                <input type="radio" name="regstate" value="1" title="开启" {eq name="web.regstate" value="1"}checked{/eq}>
+                                <input type="radio" name="regstate" value="0" title="关闭" {eq name="web.regstate" value="0"}checked{/eq}>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>自助充值</label>
+                            <div>
+                                <input type="radio" name="userpay" value="1" title="开启" {eq name="web.userpay" value="1"}checked{/eq}>
+                                <input type="radio" name="userpay" value="0" title="关闭" {eq name="web.userpay" value="0"}checked{/eq}>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>网站状态</label>
+                            <div>
+                                <input type="radio" name="status" value="1" title="开启" {eq name="web.status" value="1"}checked{/eq}>
+                                <input type="radio" name="status" value="0" title="关闭" {eq name="web.status" value="0"}checked{/eq}>
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-inline">
+                            <button class="pear-btn pear-btn-primary" lay-submit lay-filter="website">
+                                <i class="layui-icon layui-icon-ok"></i> 提交
+                            </button>
+                            <button type="reset" class="pear-btn">
+                                <i class="layui-icon layui-icon-refresh"></i> 重置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="layui-tab-item">
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <label>发信单价(¥)：</label>
+                            <input name="sms_money" value="{$web.sms_money}" placeholder="请输入发信单价" class="layui-input" lay-verType="tips" lay-verify="required|h5" required/>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>发信通道：</label>
+                            <select name="smstype" lay-verType="tips" lay-verify="required" required>
+                                <option value="">请选择发信通道</option>
+                                <option value="phone" {eq name="web.smstype" value="phone"}selected{/eq}>手机短信</option>
+                                <option value="email" {eq name="web.smstype" value="email"}selected{/eq}>邮箱信息</option>
+                                <option value="close" {eq name="web.smstype" value="close"}selected{/eq}>关闭</option>
+                            </select>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>手机短信签名：</label>
+                            <input name="autograph" value="{$web.autograph}" placeholder="请输入手机短信签名（如：匿名来信）" class="layui-input" lay-verType="tips" lay-verify="h5"/>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>手机短信小尾巴：</label>
+                            <textarea name="tail" placeholder="请输入手机短信小尾巴" class="layui-textarea" lay-verType="tips">{$web.tail}</textarea>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>手机短信云端账户名：</label>
+                            <input name="yun_username" value="{$web.yun_username}" placeholder="请输入手机短信云端账户名" class="layui-input" lay-verType="tips" lay-verify="h5"/>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>手机短信云端账户KEY：</label>
+                            <input name="yun_key" value="{$web.yun_key}" placeholder="请输入手机短信云端账户KEY" class="layui-input" lay-verType="tips" lay-verify="h5"/>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label>SMTP服务器地址：</label>
+                                <input name="mail_smtp" value="{$web.mail_smtp}" placeholder="请输入SMTP服务器地址" class="layui-input" lay-verType="tips"/>
+                            </div>
+                            <div class="layui-inline">
+                                <label>SMTP发件账号：</label>
+                                <input name="mail_name" value="{$web.mail_name}" placeholder="请输入SMTP发件账号" class="layui-input" lay-verType="tips"/>
+                            </div>
+                            <div class="layui-inline">
+                                <label>SMTP发件密码：</label>
+                                <input name="mail_password" value="{$web.mail_password}" placeholder="请输入SMTP发件密码" class="layui-input" lay-verType="tips"/>
+                            </div>
+                            <div class="layui-inline">
+                                <label>SMTP发件端口：</label>
+                                <input name="mail_port" value="{$web.mail_port}" placeholder="请输入SMTP发件端口" class="layui-input" lay-verType="tips"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-inline">
+                            <button class="pear-btn pear-btn-primary" lay-submit lay-filter="website">
+                                <i class="layui-icon layui-icon-ok"></i> 提交
+                            </button>
+                            <button type="reset" class="pear-btn">
+                                <i class="layui-icon layui-icon-refresh"></i> 重置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="layui-tab-item">
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <label>提现最低金额(¥)：</label>
+                            <input name="least_money" value="{$web.least_money}" placeholder="请输入提现最低金额" class="layui-input" lay-verType="tips" lay-verify="required|h5" required/>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>QQ支付通道：</label>
+                            <select name="qqpay" lay-verType="tips" lay-verify="required" required>
+                                <option value="">请选择QQ支付通道</option>
+                                <option value="epay" {eq name="web.qqpay" value="epay"}selected{/eq}>易支付</option>
+                                <option value="close" {eq name="web.qqpay" value="close"}selected{/eq}>关闭</option>
+                            </select>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>微信支付通道：</label>
+                            <select name="wxpay" lay-verType="tips" lay-verify="required" required>
+                                <option value="">请选择微信支付通道</option>
+                                <option value="epay" {eq name="web.wxpay" value="epay"}selected{/eq}>易支付</option>
+                                <option value="close" {eq name="web.wxpay" value="close"}selected{/eq}>关闭</option>
+                            </select>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>支付宝支付通道：</label>
+                            <select name="alipay" lay-verType="tips" lay-verify="required" required>
+                                <option value="">请选择支付宝支支付通道</option>
+                                <option value="epay" {eq name="web.alipay" value="epay"}selected{/eq}>易支付</option>
+                                <option value="f2f" {eq name="web.alipay" value="f2f"}selected{/eq}>当面付</option>
+                                <option value="close" {eq name="web.alipay" value="close"}selected{/eq}>关闭</option>
+                            </select>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label>易支付接口：</label>
+                                <input name="epaylink" value="{$web.epaylink}" placeholder="请输入易支付接口(前有http(s):// 后有 /)" class="layui-input" lay-verType="tips" lay-verify="urlX" />
+                            </div>
+                            <div class="layui-inline">
+                                <label>易支付商户ID：</label>
+                                <input name="epaypid" value="{$web.epaypid}" placeholder="请输入易支付商户ID" class="layui-input" lay-verType="tips"/>
+                            </div>
+                            <div class="layui-inline">
+                                <label>易支付商户KEY：</label>
+                                <input name="epaykey" value="{$web.epaykey}" placeholder="请输入易支付商户KEY" class="layui-input" lay-verType="tips"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>当面付应用ID：</label>
+                            <input name="alipay_app_id" value="{$web.alipay_app_id}" placeholder="请输入当面付应用ID" class="layui-input" lay-verType="tips">
+                        </div>
+                        <div class="layui-form-item">
+                            <label>当面付公钥：</label>
+                            <textarea name="alipay_public_key" placeholder="请输入当面付公钥" style="margin-top: 0px; margin-bottom: 0px; height: 150px;" class="layui-textarea" lay-verType="tips">{$web.alipay_public_key}</textarea>
+                        </div>
+                        <div class="layui-form-item">
+                            <label>当面付私钥：</label>
+                            <textarea name="alipay_private_key" placeholder="请输入当面付私钥" style="margin-top: 0px; margin-bottom: 0px; height: 150px;" class="layui-textarea" lay-verType="tips">{$web.alipay_private_key}</textarea>
+                        </div>
+                        <div class="layui-form-item layui-inline">
+                            <button class="pear-btn pear-btn-primary" lay-submit lay-filter="website">
+                                <i class="layui-icon layui-icon-ok"></i> 提交
+                            </button>
+                            <button type="reset" class="pear-btn">
+                                <i class="layui-icon layui-icon-refresh"></i> 重置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="layui-tab-item">
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <label>首页模板：</label>
+                            <select name="template" class="form-control">
+                                {foreach $template as $value}
+                                <option value="{$value.name}" {if $web.template == $value.name}selected{/if}>Name：{$value.name}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                        <div class="layui-form-item layui-inline">
+                            <button class="pear-btn pear-btn-primary" lay-submit lay-filter="website">
+                                <i class="layui-icon layui-icon-ok"></i> 提交
+                            </button>
+                            <button type="reset" class="pear-btn">
+                                <i class="layui-icon layui-icon-refresh"></i> 重置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div style="padding: 10px 30px 20px 30px;">
+        <h3>说明</h3>
+        <br><h4>网站状态：</h4>
+        <p class="layui-text">站点关闭后前台将不能访问，后台可正常使用</p>
+        <br><h4>注册状态：</h4>
+        <p class="layui-text">打开时用户可以自助注册，关闭时用户无法自助注册</p>
+        <br><h4>发信通道：</h4>
+        <p class="layui-text">如果您选择为手机短信，则手机短信云端账户名与KEY必须填写，否则无法使用。 <br>如果您选择为邮箱信息，则SMTP信息必须填写，否则无法使用。<br><b style="color: red">手机短信发信云端地址：<a
+                href="https://www.nanyinet.com/2112.html" target="_blank">https://www.nanyinet.com/2112.html</a></b>
+            <br>问：可以接入阿里云或者短信宝的短信吗？<br>答：不可以，阿里云/腾讯云/短信宝等平台不支持此类短信的发送，无法对接，必须使用我们的手机短信云端平台进行统一下发！</p>
+    </div>
+</div>
+</body>
+{include file='public/script'}
+<script>
+    layui.use(['jquery','layer', 'form','upload'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var upload = layui.upload;
+
+        form.on('submit(website)', function() {
+            var loadIndex = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+            $.ajax({
+                type: 'POST',
+                url: '{:url(\'index/web\')}',
+                data:$("form").serialize(),
+                dataType:'json',
+                success: function(result) {
+                    layer.close(loadIndex);
+                    if (result.code === 1) {
+                        layer.msg(result.msg, {icon: 6, time: 1500});
+                    } else {
+                        layer.msg(result.msg, {icon: 5, anim: 6});
+                    }
+                }
+            })
+            return false;
+        });
+        //上传图片
+        upload.render({
+            elem: '#image-upload',
+            url: '{:url(\'Ajax/upload\')}',
+            dataType: "json",
+            before: function () {
+                loadMsg = layer.msg('上传中...', {icon: 16, shade: 0.01, time: false});
+            },
+            done: function (res) {
+                layer.close(loadMsg);
+                if (res.status == 1) {
+                    layer.msg(res.info, {icon: 6, time: 1500});
+                    $('#image-upload-value').val(res.location);
+                } else {
+                    layer.msg(res.info, {icon: 5});
+                }
+            },
+            error: function () {
+                layer.close(loadMsg);
+                layer.msg('服务器繁忙，请稍后再试!', {icon: 5});
+            }
+        });
+
+        //测试邮箱是否可用
+        $('#test').click(function () {
+            layer.msg('正在处理中，请稍后...');
+            $.ajax({
+                type:'POST',
+                url:'{:url(\'Ajax/testsmtp\')}',
+                dataType:'json',
+                success:function (data){
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 6, time: 1500});
+                    }else{
+                        layer.msg(data.msg, {icon: 5, anim: 6});
+                    }
+                }
+            });
+        });
+    });
+</script>
+</html>

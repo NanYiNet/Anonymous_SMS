@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta name="renderer" content="webkit">
+<title>支付宝扫码支付 - {$body}</title>
+<link href="/static/f2f/css/pay.css" rel="stylesheet" media="screen">
+<link rel="stylesheet" href="/static/css/materialdesignicons.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<style>
+    *{margin:0;padding:0;}
+    body{background: #f2f2f4;}
+    .clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+    .clearfix { display: inline-block; }
+    * html .clearfix { height: 1%; }
+    .clearfix { display: block; }
+    .xh-title{height:75px;line-height:75px;text-align:center;font-size:30px;font-weight:300;border-bottom:2px solid #eee;background: #fff;}
+    .qrbox{max-width: 900px;margin: 0 auto;padding:85px 20px 20px 50px;}
+  
+    .qrbox .left{width: 40%;float: left;display: block;margin: 0px auto;}
+    .qrbox .left .qrcon{
+        border-radius: 10px;
+        background: #fff;
+        overflow: visible;
+        text-align: center;
+        padding-top:25px;
+        color: #555;
+        box-shadow: 0 3px 3px 0 rgba(0, 0, 0, .05);
+        vertical-align: top;
+        -webkit-transition: all .2s linear;
+        transition: all .2s linear;
+    }
+    .qrbox .left .qrcon .logo{width: 100%;}
+    .qrbox .left .qrcon .title{font-size: 16px;margin: 10px auto;width: 100%;}
+    .qrbox .left .qrcon .price{font-size: 22px;margin: 0px auto;width: 100%;}
+    .qrbox .left .qrcon .bottom{border-radius: 0 0 10px 10px;width: 100%;background: #32343d;color: #f2f2f2;padding:15px 0px;text-align: center;font-size: 14px;}
+    .qrbox .sys{width: 60%;float: right;text-align: center;padding-top:20px;font-size: 12px;color: #ccc}
+    .qrbox img{max-width: 100%;}
+    @media (max-width : 767px){
+        .qrbox{padding:20px;}
+        .qrbox .left{width: 90%;float: none;}   
+        .qrbox .sys{display: none;}
+    }
+</style>
+<body>
+<div class="xh-title">支付宝收银台</div>
+  <div class="qrbox clearfix">
+  <div class="left" style="box-shadow: 0 0 60px #b5f1ff;">
+         <div class="qrcon">
+           <h5><img src="/static/f2f/img/alipay-logo.png" alt="" style="height:30px;"></h5>
+             <div class="title">商品名称：{$body}</div>
+             <div class="price">￥{$money}</div>
+           <br>
+             <div align="center" style="position:relative;">
+                <div class="qr-image" id="qrcode">
+                   </div>
+               <br>
+<div class="detail" id="orderDetail">
+<dl class="detail-ct" style="display: none;">
+</dl>
+<a href="javascript:void(0)" class="arrow"><i class="ico-arrow"></i></a>
+</div>
+<div class="tip">
+<div class="tip-text">
+</div>
+</div>
+<div class="tip-text">
+</div>
+</div>
+<div class="foot">
+<div class="inner">
+</div>
+</div>
+<div class="bottom">
+<div class="title">商户订单号：{$out_trade_no}</div>
+              请使用支付宝扫一扫<br>扫描二维码支付
+    <?php if(app\Nathan\lib\Nathan::is_mobile()==true): ?>
+<div class="bottom">
+<div id="J_downloadInteraction" class="download-interaction download-interaction-opening">
+	<div class="inner-interaction">
+		<h5> 正在打开支付宝...</h5>
+		<h5 class="download-asking">如果没有打开支付宝，<a id="J_downloadBtn" href="javascript:;" onclick="openAli();">请点此重新唤起</a></h5>
+</div>
+</div>
+</div>
+    <?php endif; ?>
+</div>
+<div class="tip">
+<div class="tip-text">
+</div>
+</div>
+<div class="tip-text">
+</div>
+</div>
+</div>
+<div class="sys"><img src="/static/f2f/img/alipay-sys.png" alt=""></div>
+</div>
+<script src="/static/f2f/js/qcloud_util.js"></script>
+<script src="/static/f2f/js/jquery-qrcode.min.js"></script>
+ <script type="text/javascript" src="/static/layer/layer.min.js"></script>
+<script>
+	var code_url = '{$qr}';
+    $('#qrcode').qrcode({
+        text: code_url,
+        width: 230,
+        height: 230,
+        foreground: "#000000",
+        background: "#ffffff",
+        typeNumber: -1
+    });
+    // 订单详情
+    $('#orderDetail .arrow').click(function (event) {
+        if ($('#orderDetail').hasClass('detail-open')) {
+            $('#orderDetail .detail-ct').slideUp(500, function () {
+                $('#orderDetail').removeClass('detail-open');
+            });
+        } else {
+            $('#orderDetail .detail-ct').slideDown(500, function () {
+                $('#orderDetail').addClass('detail-open');
+            });
+        }
+    });
+    setOrder = setInterval(function () {
+                $.ajax({
+                    type: 'post',
+                    url: '{:url("index/F2fpay/query")}',
+                    data: {
+                        no: '{$out_trade_no}',
+                        t: Math.random()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.toLowerCase() == "success") {
+                            // layer.msg('支付成功，正在跳转中...', {icon: 6,shade: 0.01,time: 20000});
+                            // setTimeout(window.location.href='/user', 1000);
+                            layer.alert('支付成功,请确认！', {icon: 'success'}, function(){
+                                setTimeout(window.location.href='{:url("index/user")}', 1000);
+                            });
+
+         
+                        } else {
+                            $('.account').html(data.msg);
+                        }
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+
+            }, 3000);
+
+	if (typeof AlipayWallet !== 'object') {
+		AlipayWallet = {};
+	}
+	(function () {
+		"use strict";
+		function a(e, t) {
+			for (var o = e.split("."), n = t.split("."), a = 0; a < o.length || a < n.length; a += 1) {
+				var r = parseInt(o[a], 10) || 0,
+					i = parseInt(n[a], 10) || 0;
+				if (r < i) return -1;
+				if (r > i) return 1
+			}
+			return 0
+		}
+		function r(e) {
+			var x = window.document.createElement("iframe"); x.id = "callapp_iframe_" + Date.now(), x.frameborder = "0", x.style.cssText = "display:none;border:0;width:0;height:0;", window.document.body.appendChild(x), x.src = e
+		}
+		function i(e) {
+			var t = x.createElement("a");
+			t.setAttribute("href", e), t.style.display = "none", x.body.appendChild(t);
+			var o = x.createEvent("HTMLEvents");
+			o.initEvent("click", !1, !1), t.dispatchEvent(o)
+		}
+		function l(e) {
+			return /^(http|https)\:\/\//.test(e)
+		}
+		AlipayWallet.open = function (n){
+			var p = window.navigator.userAgent;
+			var g = !1,
+				m = !1,
+				h = "",
+				w = p.match(/Android[\s\/]([\d\.]+)/);
+			w ? (g = !0, h = w[1]) : p.match(/(iPhone|iPad|iPod)/) && (m = !0, w = p.match(/OS ([\d_\.]+) like Mac OS X/), w && (h = w[1].split("_").join(".")));
+			var v = !1,
+				b = !1,
+				y = !1;
+			p.match(/(?:Chrome|CriOS)\/([\d\.]+)/) ? (v = !0, p.match(/Version\/[\d+\.]+\s*Chrome/) && (y = !0)) : p.match(/iPhone|iPad|iPod/) && (p.match(/Safari/) && p.match(/Version\/([\d\.]+)/) ? b = !0 : p.match(/OS ([\d_\.]+) like Mac OS X/) && (y = !0));
+			var u = g && v && !y,
+				d = g && !! p.match(/samsung/i) && a(h, "4.3") >= 0 && a(h, "4.5") < 0,
+				s = m && a(h, "9.0") >= 0 && b;
+			if(u){
+				var f = n.substring(0, n.indexOf("://")),
+					w = "#Intent;scheme=" + f + ";end";
+					n = n.replace(/.*?\:\/\//, "intent://"), n += w;
+			}
+			if (s) {
+				setTimeout(function() {
+					i(n)
+				}, 100)
+			} else if (0 === n.indexOf("intent:")) setTimeout(function() {
+				window.location.href = n
+			}, 100);
+			else {
+				r(n)
+			}
+		}
+	})();
+	function openAli(){
+		var scheme = 'alipays://platformapi/startapp?saId=10000007&qrcode=';
+		scheme += encodeURIComponent(code_url);
+		AlipayWallet.open(scheme);
+	}
+	window.onload = function(){
+		openAli();
+		setTimeout("loadmsg()", 2000);
+	}
+</script>
+</body>
+</html>

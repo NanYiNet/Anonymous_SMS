@@ -1,0 +1,92 @@
+{include file='public/header'}
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-header">修改友情链接</div>
+    <div class="layui-card-body">
+        <form style="margin-top: 0px;" class="layui-form">
+            <div class="layui-form-item" hidden>
+                <input name="id" value="{$data.id}" class="layui-input" lay-verType="tips" lay-verify="required" required disabled/>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-required">友情名称：</label>
+                <input name="name" value="{$data.name}" placeholder="请输入友情名称" class="layui-input" lay-verType="tips" lay-verify="required" required />
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-required">友情链接：</label>
+                <input name="url" value="{$data.url}" placeholder="请输入友情链接（无 hhtp(s)://）" class="layui-input" lay-verType="tips" lay-verify="required" required />
+            </div>
+            <div class="layui-form-item">
+                <label>友情图片：</label>
+                <div>
+                    <input name="img" value="{$data.img}" style="display:inline-block; ;width:58% " id="image-upload-value" placeholder="请输入友情图片地址" class="layui-input" lay-verType="tips">
+                    <button type="button" class="pear-btn pear-btn-primary" id="image-upload" style="margin-left:0px" >
+                        <i class="layui-icon"></i>上传图片
+                    </button>
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <button class="pear-btn pear-btn-primary" lay-submit lay-filter="Nathan">
+                    <i class="layui-icon layui-icon-ok"></i> 提交
+                </button>
+                <button type="reset" class="pear-btn">
+                    <i class="layui-icon layui-icon-refresh"></i> 重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+<!-- js部分 -->
+{include file='public/script'}
+<script>
+    layui.use(['jquery','layer', 'form','upload'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var upload = layui.upload;
+
+        form.on('submit(Nathan)', function(data) {
+            var loadIndex = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+            $.ajax({
+                url: '{:url(\'Ajax/link_edit\')}',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function(result) {
+                    layer.close(loadIndex);
+                    if (result.code === 1) {
+                        layer.msg(result.msg, {icon: 6, time: 1500});
+                    } else {
+                        layer.msg(result.msg, {icon: 5, anim: 6});
+                    }
+                }
+            })
+            return false;
+        });
+
+        upload.render({
+            elem: '#image-upload',
+            url: '{:url(\'Ajax/upload\')}',
+            dataType: "json",
+            before: function () {
+                loadMsg = layer.msg('上传中...', {icon: 16, shade: 0.01, time: false});
+            },
+            done: function (res) {
+                layer.close(loadMsg);
+                if (res.status == 1) {
+                    layer.msg(res.info, {icon: 6, time: 1500});
+                    $('#image-upload-value').val(res.location);
+                } else {
+                    layer.msg(res.info, {icon: 5});
+                }
+            },
+            error: function () {
+                layer.close(loadMsg);
+                layer.msg('服务器繁忙，请稍后再试!', {icon: 5});
+            }
+        });
+    });
+</script>
+</body>
+</html>

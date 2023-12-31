@@ -1,0 +1,74 @@
+{include file='index/public/header' title='在线充值'}
+<footer class="footer">
+    <a href="{:url('index')}">
+        <img src="/static/picture/tab_00.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}">
+        <img src="/static/picture/tab_01.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}" class="show">
+        <img src="/static/picture/tab_03_show.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<header class="header-tool">
+    <a href="javascript:history.go(-1)">
+        <i class="icon icon-chevron-left"></i>
+    </a>在线充值
+</header>
+<section class="section">
+    <form class="sms-form" method="POST">
+        <div class="sms-notice nowrap"><img src="/static/picture/icon_14.png" alt="公告"><marquee direction="left" behavior="scroll" scrollamount="5" style="display: inline-grid;">如充值异常请联系网站客服</marquee></div>
+        <div class="sms-title">
+            当前余额：￥ {$user.money}
+        </div>
+        <div id="type-1">
+            <div class="sms-input">
+                <input type="text" name="key" placeholder="请输入充值卡密">
+            </div>
+        </div>
+        <div id="type-2">
+            <div class="sms-input">
+                <input type="text" name="money" placeholder="请输入充值金额">
+            </div>
+        </div>
+        <div class="sms-input">
+            <select name="type" style="width: 100%;height: 44px;padding: 0 15px;box-sizing: border-box;background: transparent;border: none;outline: none;font-size: 14px;">
+                <option value="">请选择您的支付方式</option>
+                <option value="card">卡密充值</option>
+                {if $web.qqpay != 'close'}
+                <option value="qqpay">QQ支付</option>
+                {/if}
+                {if $web.wxpay != 'close'}
+                <option value="wxpay">微信支付</option>
+                {/if}
+                {if $web.alipay != 'close'}
+                <option value="alipay">支付宝支付</option>
+                {/if}
+            </select>
+        </div>
+        <div class="sms-btn">
+            <button type="submit"><img src="/static/picture/icon_13.png"/>提交充值</button>
+        </div>
+    </form>
+</section>
+{include file='index/public/script'}
+<script>
+    $("select[name='type']").bind("change", function () {
+        if (this.value == "card") {
+            $('#type-1').show(500);
+            $('#type-2').hide(500);
+        } else {
+            $('#type-1').hide(500);
+            $('#type-2').show(500);
+        }
+    });
+</script>
+</body>
+</html>

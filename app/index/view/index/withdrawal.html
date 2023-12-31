@@ -1,0 +1,138 @@
+{include file='index/public/header' title='余额提现'}
+<footer class="footer">
+    <a href="{:url('index')}">
+        <img src="/static/picture/tab_00.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}">
+        <img src="/static/picture/tab_01.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}" class="show">
+        <img src="/static/picture/tab_03_show.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<header class="header-tool">
+    <a href="javascript:history.go(-1)">
+        <i class="icon icon-chevron-left"></i>
+    </a>余额提现
+</header>
+<section class="section">
+    <nav class="order-nav" data-display data-selector="a" data-show-single="true" data-active-class="active">
+        <a data-target="#await" class="active">
+            <span>余额提现</span>
+        </a>
+        <a data-target="#all">
+            <span>提现记录</span>
+        </a>
+    </nav>
+    <div class="order-content">
+        <div class="" id="await" style="margin: 10px">
+            <section class="section">
+                <form class="password-form">
+                    <h6 class="password-form-title" style="font-size: 20px">账号余额：￥ {$user.money}</h6>
+                    <p class="password-form-sub">单次最少提现金额为 ￥ {$web.least_money}</p>
+                    <input class="password-form-input" type="text" name="ali_pay" placeholder="支付宝账号">
+                    <input class="password-form-input" type="text" name="ali_name" placeholder="支付宝姓名">
+                    <input class="password-form-input" type="text" name="money" placeholder="提现金额">
+                    <button class="password-form-btn tixian-form-btn" type="button" id="withdrawal">申请提现</button>
+                </form>
+            </section>
+        </div>
+        <ul class="order-lists" id="all">
+            {foreach $list as $value}
+            <li>
+                <div class="order-list-header">
+                    <div class="order-list-no nowrap">提现账号：{$value.ali_pay}</div>
+                    {if $value['status'] == 1}
+                    <div class="order-list-state state-success">已打款</div>
+                    {elseif $value['status'] == 0}
+                    <div class="order-list-state state-await">待打款</div>
+                    {/if}
+                </div>
+                <div class="order-list-content">
+                    <p>提现姓名：{$value.ali_name}</p>
+                    <p>提现金额：￥ {$value.money}</p>
+                    <p>提现时间：{$value.date}</p>
+                </div>
+                <div class="order-list-footer">
+                    {if $value['status'] == 0}
+                    <span onclick="revoke('{$value.id}')">撤销打款</span>
+                    {/if}
+                </div>
+            </li>
+            {/foreach}
+            <div class="pagination">{$list|raw}</div>
+        </ul>
+    </div>
+</section>
+{include file='index/public/script'}
+<script>
+    $("#withdrawal").click(function(){
+        var ali_pay = $("input[name='ali_pay']").val();
+        var ali_name = $("input[name='ali_name']").val();
+        var money = $("input[name='money']").val();
+        if(ali_pay.length < 1 || ali_name.length < 1 || money.length < 1){
+            layer.msg('请确保必填项不为空');
+            return false;
+        }
+        var load = layer.load('2', { shade: 0.2 });
+        $.ajax({
+            type:'POST',
+            url:'{:url(\'Ajax/withdrawal\')}',
+            data:{
+                ali_pay:ali_pay,
+                ali_name:ali_name,
+                money:money,
+            },
+            dataType:'json',
+            success:function (data){
+                layer.close(load)
+                if(data.code == 1){
+                    layer.msg(data.msg, {icon: 'smile', time: 1500}, function () {
+                        parent.location.reload();
+                    });
+                }else{
+                    layer.msg(data.msg, {icon: 'cry', anim: 6});
+                }
+            },
+            error:function(){
+                layer.close(load);
+                layer.msg('服务器错误，请稍后再试~');
+                return false;
+            }
+        });
+        return false;
+    })
+
+    function revoke(id){
+        layer.confirm('确定要撤销打款吗？', function (index) {
+            parent.layer.close(index);
+            layer.msg('正在处理中，请稍后...');
+            $.ajax({
+                type:'POST',
+                url:'{:url(\'Ajax/revoke\')}',
+                data:{
+                    id:id
+                },
+                dataType:'json',
+                success:function (data){
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 'smile', time: 1500}, function () {
+                            parent.location.reload();
+                        });
+                    }else{
+                        layer.msg(data.msg, {icon: 'cry', anim: 6});
+                    }
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

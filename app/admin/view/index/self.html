@@ -1,0 +1,99 @@
+{include file='public/header'}
+<link rel="stylesheet" href="/static/admin/css/other/person.css" />
+<body class="pear-container">
+<div class="layui-row layui-col-space10">
+    <div class="layui-col-md3">
+        <div class="layui-card">
+            <div class="layui-card-body" style="padding: 25px;">
+                <div class="text-center layui-text">
+                    <div class="user-info-head">
+                        <img src="{$photo}" width="115px" height="115px" alt="">
+                    </div>
+                    <h2 style="padding-top: 20px;font-size: 20px;">{$self.adminname}</h2>
+                    <p style="padding-top: 8px;margin-top: 10px;font-size: 13.5px;">{$self.logincity}</p>
+                </div>
+            </div>
+            <div style="border-top: 1px whitesmoke solid;text-align: center;line-height: 45px;font-size: 13.5px;">
+                <span>{$hitokoto}</span>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md9">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                基本信息
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-tab layui-tab-brief">
+                    <div class="layui-tab-item layui-show">
+                        <form class="layui-form">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required">用户名:</label>
+                                <div class="layui-input-block">
+                                    <input name="adminname" placeholder="请输入用户名" value="{$self.adminname}" class="layui-input" minlength="5" lay-verify="required|h5" required/>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label layui-form-required">QQ:</label>
+                                <div class="layui-input-block">
+                                    <input name="qq" value="{$self.qq}" placeholder="请输入QQ" class="layui-input" maxlength="10" lay-verify="required|h5" required/>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">邮箱:</label>
+                                <div class="layui-input-block">
+                                    <input name="email" placeholder="{$self.email|default = '您没有填写邮箱哦~'}" value="{$self.email}" class="layui-input" lay-verify="emailX">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">密码:</label>
+                                <div class="layui-input-block">
+                                    <input name="password" placeholder="请输入修改后密码(不修改请留空)" class="layui-input" minlength="5" lay-verify="h5">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <button class="pear-btn pear-btn-primary" lay-filter="self" lay-submit>更新基本信息
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{include file='public/script'}
+<script>
+    layui.use(['jquery','layer', 'form'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+
+        form.on('submit(self)', function(data) {
+            var loadIndex = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+            $.ajax({
+                url: '{:url(\'Ajax/self\')}',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function(result) {
+                    layer.close(loadIndex);
+                    if (result.code === 1) {
+                        layer.msg(result.msg, {icon: 6, time: 1500}, function () {
+                            location.href = '{:url(\'index/login\')}'
+                            parent.location.reload();
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 5, anim: 6});
+                    }
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

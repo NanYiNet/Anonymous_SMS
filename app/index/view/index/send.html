@@ -1,0 +1,84 @@
+{include file='index/public/header' title='已发短信'}
+<footer class="footer">
+    <a href="{:url('index')}">
+        <img src="/static/picture/tab_00.png" alt="写信">
+        <p>写信</p>
+    </a>
+    <a href="{:url('public_sms')}">
+        <img src="/static/picture/tab_01.png" alt="公开信">
+        <p>公开信</p>
+    </a>
+    <a href="{:url('notice')}">
+        <img src="/static/picture/tab_02.png" alt="公告">
+        <p>公告</p>
+    </a>
+    <a href="{:url('user')}" class="show">
+        <img src="/static/picture/tab_03_show.png" alt="我的">
+        <p>我的</p>
+    </a>
+</footer>
+<header class="header-tool">
+    <a href="javascript:history.go(-1)">
+        <i class="icon icon-chevron-left"></i>
+    </a>已发短信
+</header>
+<section class="section">
+    <ul class="order-lists">
+        {foreach $list as $value}
+        <li data-id="333" data-api_send_id="2206242150465593891">
+            <div class="order-list-header">
+                <div class="order-list-no nowrap">订单号：{$value.order}</div>
+                {if $value['status'] == 1}
+                <div class="order-list-state state-success">发送成功</div>
+                {elseif $value['status'] == 0}
+                <div class="order-list-state state-fail">发送失败</div>
+                {elseif $value['status'] == 2}
+                <div class="order-list-state state-await">待发送</div>
+                {/if}
+            </div>
+            <div class="order-list-content">
+                <p>收信人：{$value.phone}</p>
+                <p>内容：{$value.content}</p>
+                <p>创建时间：{$value.date}</p>
+            </div>
+            <div class="order-list-footer">
+                {if $value['status'] == 0}
+                <span class="upstream" onclick="resend('{$value.id}')">重新发送</span>
+                {elseif $value['status'] == 2}
+                <span class="upstream" onclick="resend('{$value.id}')">确定发送</span>
+                {/if}
+                <b>￥{$value.money}</b>
+            </div>
+        </li>
+        {/foreach}
+    </ul>
+    <div class="pagination">{$list|raw}</div>
+</section>
+{include file='index/public/script'}
+<script>
+    function resend(id){
+        layer.confirm('确定要重新发送吗？', function (index) {
+            parent.layer.close(index);
+            layer.msg('正在处理中，请稍后...');
+            $.ajax({
+                type:'POST',
+                url:'{:url(\'Ajax/resend\')}',
+                data:{
+                    id:id
+                },
+                dataType:'json',
+                success:function (data){
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 'smile', time: 1500}, function () {
+                            parent.location.reload();
+                        });
+                    }else{
+                        layer.msg(data.msg, {icon: 'cry', anim: 6});
+                    }
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>
