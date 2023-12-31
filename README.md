@@ -1,7 +1,7 @@
 Nathan-匿名来信系统1.0开源 https://www.nanyinet.com/2112.html
 ===============
 ## 安装说明
-> 运行环境要求PHP 73-81，MySQL5.6，运行目录：public，伪静态：ThinkPHP，PHP拓展：fileinfo
+> 运行环境要求PHP 73，MySQL5.6，运行目录：public，伪静态：ThinkPHP，PHP拓展：fileinfo
 
 ## 安装教程
 
